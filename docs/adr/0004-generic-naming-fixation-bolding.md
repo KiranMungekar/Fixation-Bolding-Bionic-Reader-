@@ -1,0 +1,3 @@
+# Generic product naming: "Fixation Bolding"
+
+The product is named "Fixation Bolding" with the subtitle "Reading help for people with ADHD," avoiding the trademarked term "Bionic Reading®" (registered to Renato Casutt) in all user-facing and product naming. The transformation method is called "Fixation Bolding" and the prefix concept a "Fixation Prefix." This avoids trademark risk for a publicly deployed product while keeping the ADHD-focused reading-aid framing front and center. Rejected alternatives: using "Bionic Reading" freely (cease-and-desist risk once public); using the term with a disclaimer (legally gray, adds friction).

@@ -1,0 +1,3 @@
+# ECS + Fargate with ALB for AWS hosting
+
+The container is deployed to Amazon ECS on Fargate, fronted by an Application Load Balancer. This fits the app's profile: no EC2 instance management, the ALB allows configurable payload size and timeout (needed for 50 MB synchronous PDF uploads), Fargate can scale to zero for a low-traffic single-user tool, and TLS is handled by the ALB. Rejected alternatives: App Runner (request timeout and payload size limits conflict with 50 MB synchronous uploads); Lambda (6 MB synchronous payload limit, FastAPI + pymupdf packaging is fiddly); ECS + EC2 (instance management is overkill for a single stateless container).
