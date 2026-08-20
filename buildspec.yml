@@ -1,0 +1,54 @@
+version: 0.2
+
+env:
+  # Override these in CodeBuild project or Parameter Store
+  variables:
+    AWS_DEFAULT_REGION: "us-east-1"
+    ECR_REPOSITORY: "bionic-reader"
+    IMAGE_TAG: "latest"
+
+phases:
+  pre_build:
+    commands:
+      - echo Logging in to Amazon ECR...
+      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
+      - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+      - IMAGE_TAG=${IMAGE_TAG:-latest}
+      - REPO_URI=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$ECR_REPOSITORY
+
+  build:
+    commands:
+      - echo Building the Docker image...
+      - docker build -t $ECR_REPOSITORY:$IMAGE_TAG .
+      - docker tag $ECR_REPOSITORY:$IMAGE_TAG $REPO_URI:$IMAGE_TAG
+      - docker tag $ECR_REPOSITORY:$IMAGE_TAG $REPO_URI:$COMMIT_HASH
+      # Also tag with branch name when available
+      - |
+        if [ -n "$CODEBUILD_SOURCE_VERSION" ]; then
+          BRANCH_TAG=$(echo $CODEBUILD_SOURCE_VERSION | sed 's|refs/heads/||')
+          docker tag $ECR_REPOSITORY:$IMAGE_TAG $REPO_URI:$BRANCH_TAG
+        fi
+
+  post_build:
+    commands:
+      - echo Pushing to ECR...
+      - docker push $REPO_URI:$IMAGE_TAG
+      - docker push $REPO_URI:$COMMIT_HASH
+      - |
+        if [ -n "$BRANCH_TAG" ]; then
+          docker push $REPO_URI:$BRANCH_TAG
+        fi
+      - echo Writing imagedefinitions.json for ECS deployment...
+      - |
+        printf '[
+          {
+            "name": "bionic-reader",
+            "imageUri": "%s:%s"
+          }
+        ]' "$REPO_URI" "$COMMIT_HASH" > imagedefinitions.json
+      - cat imagedefinitions.json
+
+artifacts:
+  files:
+    - imagedefinitions.json
+  discard-paths: yes
