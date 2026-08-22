@@ -33,7 +33,6 @@ HTML_PAGE = """
 <!doctype html>
 <title>Fixation Bolding \u2013 PDF to EPUB</title>
 <h1>Fixation Bolding \u2013 PDF to EPUB</h1>
-<h1>Testing Changes for Manual approval</h1>
 <form id='uploadForm' enctype='multipart/form-data'>
   <label for='file'>Choose PDF file (max 50\u202fMB):</label><br>
   <input type='file' id='file' name='file' accept='.pdf' required><br><br>
